@@ -46,8 +46,13 @@ def repository_ctx_download_common_args(attr, bucket_name, remote_path):
     has_sha256 = len(attr.sha256) > 0
     if has_integrity == has_sha256:
         fail("expected exactly one of \"integrity\" and \"sha256\"")
+    has_generation = len(attr.generation) > 0
     args = {
-        "url": bucket_url(bucket_name, remote_path),
+        "url": bucket_url(
+            bucket_name,
+            remote_path,
+            attr.generation if has_generation else None,
+        ),
         "sha256": attr.sha256,
         "integrity": attr.integrity,
     }
@@ -79,8 +84,14 @@ def download_and_extract_args(attr, bucket_name, remote_path):
         args.pop("rename_files")
     return args
 
-def bucket_url(bucket, object_path):
-    return "https://storage.googleapis.com/{}/{}".format(bucket, url_encode(object_path))
+# Use the JSON API, which allows for more options https://cloud.google.com/storage/docs/json_api/v1/objects/get
+def bucket_url(bucket, object_path, generation):
+    return "https://storage.googleapis.com/storage/v1/b/{}/o/{}?alt=media".format(
+        bucket,
+        url_encode(object_path),
+    ) + ("&generation={}".format(
+        generation,
+    ) if generation else "")
 
 def deps_from_file(module_ctx, lockfile_label, jsonpath):
     lockfile_path = module_ctx.path(lockfile_label)
@@ -99,6 +110,7 @@ def parse_lockfile(lockfile_content, jsonpath):
         # we expect the following schema:
         # - exactly one of sha256 or integrity
         # - optionally a remote_path (if not, we populate it with the local_path instead)
+        has_generation = "generation" in v
         has_remote_path = "remote_path" in v
         has_integrity = "integrity" in v
         has_sha256 = "sha256" in v
@@ -109,6 +121,8 @@ def parse_lockfile(lockfile_content, jsonpath):
         }
         if has_integrity:
             info["integrity"] = v["integrity"]
+        if has_generation:
+            info["generation"] = v["generation"]
         if has_sha256:
             info["sha256"] = v["sha256"]
         processed_lockfile[local_path] = info

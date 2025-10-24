@@ -45,7 +45,11 @@ def _eager_impl(repository_ctx):
 
 def info_to_download_args(bucket_name, local_path, info):
     args = {
-        "url": bucket_url(bucket_name, info["remote_path"]),
+        "url": bucket_url(
+            bucket_name,
+            info["remote_path"],
+            info["generation"] if "generation" in info else None,
+        ),
         "output": local_path,
         "executable": True,
         "block": False,

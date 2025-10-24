@@ -67,6 +67,7 @@ def dep_to_blob_repo(bucket_name, local_path, info):
         "name": object_repo_name(bucket_name, info["remote_path"]),
         "downloaded_file_path": local_path,
         "executable": True,
+        "generation": info["generation"] if "generation" in info else None,
         "sha256": info["sha256"] if "sha256" in info else None,
         "integrity": info["integrity"] if "integrity" in info else None,
         "url": gs_url,
@@ -120,6 +121,7 @@ Examples:
   - `sha256`: the expected sha256 hash of the file. Required unless `integrity` is used.
   - `integrity`: the expected SRI value of the file. Required unless `sha256` is used.
   - `remote_path`: name of the object within the bucket. If not set, the local path is used.
+  - `generation`: generation number to a specific version of the object in the bucket. If not set the `live` generation is used.
 
   Targets in the main repository can depend on this target if the
   following lines are added to `MODULE.bazel`:
