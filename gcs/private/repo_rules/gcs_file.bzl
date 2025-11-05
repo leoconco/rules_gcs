@@ -110,6 +110,11 @@ to omit the SHA-256 as remote files can change._ At best omitting this
 field will make your build non-hermetic. It is optional to make development
 easier but should be set before shipping.""",
     ),
+    "generation": attr.string(
+        doc = """A specific generation number to pull from gcs.
+This must be an integer, live generation is assumed if empty.
+""",
+    ),
     "url": attr.string(
         mandatory = True,
         doc = "A URL to a file that will be made available to Bazel.\nThis must be a 'gs://' URL.",

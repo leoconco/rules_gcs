@@ -13,6 +13,7 @@
     },
     "custom/local/path/SHA256SUMS": {
       "remote_path": "release/v1.30.3/SHA256SUMS",
+      "generation": "1721216992694798",
       "integrity": "sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY="
     }
 }
